@@ -1,0 +1,70 @@
+---
+title: "Customer Journey Sequence Analysis & Visualization"
+output: html_document
+---
+
+TraMineR draws the route each user takes through an app, step by step. Each
+route is a sequence of pages, and the plots show the common paths and where
+users stop.
+
+## Load the package
+
+```{r load}
+library(TraMineR)
+```
+
+## Make some example journeys
+
+Each user follows the stages in order, and each one stops at a random point.
+
+```{r data}
+set.seed(5)
+
+stage <- c("S", "B", "P", "C", "E")
+data  <- matrix(NA, nrow = 10, ncol = 5)
+
+for (i in 1:10) {
+  keep <- sample(2:5, 1)            # how far this user goes
+  data[i, 1:keep] <- stage[1:keep]
+}
+
+data <- as.data.frame(data)
+names(data) <- paste0("t", 1:5)
+data
+```
+
+## Turn the table into a sequence object
+
+`seqdef()` tells TraMineR the possible states and their names.
+
+```{r seqdef}
+alphabet <- c("S", "B", "P", "C", "E")
+labels   <- c("Landing", "Browse", "Product", "Cart", "Order done")
+
+journey <- seqdef(data, alphabet = alphabet, labels = labels)
+journey
+```
+
+## Draw each user's journey
+
+`seqiplot()` draws one coloured row per user from first to last step.
+
+```{r seq_plot}
+seqiplot(journey)
+```
+
+## Show the most common journeys
+
+`seqfplot()` draws the paths that many users share.
+
+```{r seqf_plot}
+seqfplot(journey)
+```
+
+## Show the share of users in each state
+
+`seqdplot()` shows, at each step, how many users are still in each state.
+
+```{r seqd_plot}
+seqdplot(journey)
+```

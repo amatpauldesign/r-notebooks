@@ -1,0 +1,65 @@
+---
+title: "SEQ & Task Time Joint Analysis"
+output: html_document
+---
+
+For each task we know how hard users found it (SEQ, 1 = very hard, 7 = very
+easy) and how long it took in seconds. Looking at both together shows which
+tasks need the most work. Base R only, no packages needed.
+
+## Make the data
+
+We pick random values inside realistic ranges for SEQ and time for each task.
+
+```{r data}
+set.seed(6)
+
+task <- c("Login", "Update profile", "Reset password", "Search results",
+          "Checkout", "Upload photo", "Contact support", "Delete account")
+seq  <- round(runif(8, 1, 7), 1)
+time <- round(runif(8, 20, 500))
+
+data <- data.frame(task, seq, time)
+data
+```
+
+## Find the cutoffs
+
+The median splits each measure into low and high.
+
+```{r cutoffs}
+median_seq  <- median(data$seq)
+median_time <- median(data$time)
+
+median_seq
+median_time
+```
+
+## Label each task
+
+Tasks that are slow and hard are frustrating. Tasks that are slow but feel
+easy are invisible effort.
+
+```{r classify}
+data$group <- "Effortless"
+data$group[data$time >  median_time & data$seq >= median_seq] <- "Invisible effort"
+data$group[data$time >  median_time & data$seq <  median_seq] <- "Frustrating"
+data$group[data$time <= median_time & data$seq <  median_seq] <- "Quick but annoying"
+
+data
+```
+
+## Count the groups
+
+```{r counts}
+table(data$group)
+```
+
+## Draw time against SEQ
+
+```{r plot}
+plot(data$time, data$seq, col = as.factor(data$group), pch = 19,
+     xlab = "Time (seconds)", ylab = "SEQ (1-7)")
+abline(v = median_time, lty = 2)
+abline(h = median_seq, lty = 2)
+```

@@ -1,0 +1,85 @@
+---
+title: "Topic Modeling (LDA) on Support Tickets & User Reviews"
+output: html_document
+---
+
+LDA reads many short customer texts and finds hidden groups of words that
+appear together. Each group is a topic, so we can see the most common problems
+in the reviews without reading every single one.
+
+## Load packages
+
+`quanteda` prepares the texts and `topicmodels` fits the LDA model.
+
+```{r load}
+library(quanteda)
+library(topicmodels)
+```
+
+## Make some example reviews
+
+We build each review from a random page and a random problem.
+
+```{r data}
+set.seed(42)
+
+pages    <- c("camera", "login", "upload", "password", "profile")
+problems <- c("crashes", "is very slow", "keeps failing", "freezes", "shows errors")
+
+text <- paste(pages[sample(1:5, 12, replace = TRUE)],
+              problems[sample(1:5, 12, replace = TRUE)])
+
+data <- data.frame(id = 1:12, text = text)
+data
+```
+
+## Split the texts into words
+
+`tokens()` cuts a text into words and `tokens_remove()` deletes common words
+like "the".
+
+```{r tokens}
+toks <- tokens(data$text, remove_punct = TRUE)
+toks <- tokens_remove(toks, stopwords("en"))
+toks
+```
+
+## Count words per review
+
+A document-feature matrix (DFM) counts how often each word appears in each
+review. LDA works on this matrix.
+
+```{r dfm}
+df_reviews <- dfm(toks)
+df_reviews
+```
+
+## Fit the LDA model
+
+We ask for 4 topics. `set.seed()` makes the result reproducible.
+
+```{r lda}
+set.seed(42)
+model <- LDA(convert(df_reviews, to = "topicmodels"), k = 4)
+model
+```
+
+## Look at the top words of each topic
+
+`terms()` shows the 8 most important words per topic. Reading them names the
+topic.
+
+```{r top_words}
+terms(model, 8)
+```
+
+## Count reviews per topic
+
+`posterior()` gives the topic mix of each review. We label each review with
+its strongest topic and count them.
+
+```{r counts}
+p <- posterior(model)
+main_topic <- apply(p$topics, 1, which.max)
+table(main_topic)
+```

@@ -1,0 +1,83 @@
+---
+title: "Customer Feedback Sentiment Analysis with tidytext"
+output: html_document
+---
+
+Sentiment lexicons give each word a score that shows how positive or negative
+it is. Adding up the scores of an answer tells us if the feedback is happy or
+angry, so we can compare releases without reading every comment.
+
+## Load packages
+
+`tidytext` splits texts into words and gives us the sentiment lexicons.
+
+```{r load}
+library(tidytext)
+library(dplyr)
+```
+
+## Make some example feedback
+
+We pick a random positive or negative comment for each customer and spread
+them over three releases.
+
+```{r data}
+set.seed(7)
+
+positive <- c("love the redesign, fast and easy",
+              "great update, no crashes",
+              "best app so far, a joy to use")
+negative <- c("the checkout is confusing and slow",
+              "app crashes every time, terrible",
+              "i hate the new layout")
+
+n <- 12
+release <- rep(c("1.0", "1.1", "2.0"), each = 4)
+mood    <- sample(c("positive", "negative"), n, replace = TRUE)
+text    <- ifelse(mood == "positive",
+                  sample(positive, n, replace = TRUE),
+                  sample(negative, n, replace = TRUE))
+
+data <- data.frame(id = 1:n, release = release, text = text)
+data
+```
+
+## Split into words
+
+`unnest_tokens()` puts one word per row and `anti_join()` removes stop words
+(the, and, of...).
+
+```{r words}
+words <- unnest_tokens(data, word, text)
+words <- anti_join(words, stop_words)
+words
+```
+
+## Add an AFINN score to each word
+
+The AFINN lexicon scores words from -5 (bad) to +5 (good).
+
+```{r scores}
+afinn <- get_sentiments("afinn")
+scored <- inner_join(words, afinn, by = "word")
+scored
+```
+
+## Average score per release
+
+`aggregate()` computes the mean score for each release.
+
+```{r by_release}
+by_release <- aggregate(value ~ release, data = scored, mean)
+by_release
+```
+
+## Count positive and negative words
+
+The Bing lexicon simply labels words positive or negative.
+
+```{r bing}
+bing <- get_sentiments("bing")
+pos_neg <- inner_join(words, bing, by = "word")
+table(pos_neg$sentiment)
+```
