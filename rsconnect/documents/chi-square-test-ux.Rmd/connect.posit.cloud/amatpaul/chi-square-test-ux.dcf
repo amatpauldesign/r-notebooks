@@ -1,0 +1,12 @@
+name: chi-square-test-ux
+title: chi-square-test-ux
+username: amatpaul
+account: amatpaul
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a00f0e-0c3c-3604-c869-6e7a2c761e32
+bundleId:
+url: https://connect.posit.cloud/amatpaul/content/01a00f0e-0c3c-3604-c869-6e7a2c761e32
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

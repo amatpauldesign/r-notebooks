@@ -1,0 +1,12 @@
+name: seq-task-time-analysis
+title: seq-task-time-analysis
+username: amatpaul
+account: amatpaul
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a00f16-0193-c137-facc-b4570d3d4781
+bundleId:
+url: https://connect.posit.cloud/amatpaul/content/01a00f16-0193-c137-facc-b4570d3d4781
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
