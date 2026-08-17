@@ -1,0 +1,90 @@
+---
+title: "A/B Test Simulation"
+output: html_document
+---
+
+Anticiper la taille d'échantillon avant de lancer un test évite de laisser
+passer une vraie différence. `power.prop.test()` calcule le nombre de visiteurs
+nécessaires par groupe, `prop.test()` compare ensuite les conversions et
+tranche. Base R uniquement, aucun package nécessaire.
+
+## Paramètres
+
+`power.prop.test()` déduit la taille d'échantillon du taux actuel, de la
+hausse minimale à détecter, du seuil de significativité et de la puissance.
+
+```{r params}
+p_control   <- 0.10    # Taux actuel
+mde_relatif <- 0.20    # On veut être capable de détecter au moins +20% de hausse
+p_variant   <- p_control * (1 + mde_relatif) # 0.12
+
+alpha <- 0.05   # Seuil de significativité (5%)
+power <- 0.80   # Puissance statistique (80%)
+
+# Calcul du nombre de visiteurs requis par groupe
+res_taille <- power.prop.test(
+  p1 = p_control,
+  p2 = p_variant,
+  sig.level = alpha,
+  power = power,
+  alternative = "two.sided"
+)
+
+n <- ceiling(res_taille$n)
+
+cat("N visiteurs par groupe :", n, "\n")
+cat("N total échantillon :", n * 2, "\n")
+```
+
+## Simulation des conversions
+
+Avec n connu, le nombre attendu de conversions est le taux multiplié par le
+nombre de visiteurs.
+
+```{r conversions}
+# Nombre de succès (conversions) attendus
+succes_control <- round(n * p_control)
+succes_variant <- round(n * p_variant)
+
+# Affichage des totaux agrégés
+cat("Conversions Control :", succes_control, "sur", n, "\n")
+cat("Conversions Variant :", succes_variant, "sur", n, "\n")
+```
+
+## Test de proportion
+
+`prop.test()` compare les deux proportions à partir des totaux agrégés.
+
+```{r test}
+# Test z de comparaison de proportions sur les agrégats
+test_res <- prop.test(
+  x = c(succes_control, succes_variant),
+  n = c(n, n),
+  correct = FALSE
+)
+
+# Résultat détaillé
+print(test_res)
+```
+
+## Décision rapide
+
+Si la p-value passe sous le seuil, l'écart observé est jugé significatif.
+
+```{r decision}
+# Décision rapide
+test_res$p.value < alpha
+```
+
+## Dessiner les taux de conversion
+
+Le barplot des taux observés montre l'écart entre les deux groupes.
+
+```{r plot}
+obs <- test_res$estimate
+barplot(obs,
+        names.arg = c("Control", "Variant"),
+        ylab = "Taux de conversion",
+        main = "Taux de conversion observés")
+```
+
