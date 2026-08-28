@@ -1,0 +1,71 @@
+---
+title: "Proportions differs in two groups"
+output: html_notebook
+---
+
+A notebook made by Paul Amat, [amat-design.com](amat-design.com)
+
+## Context and objectives
+
+> Do two proportions measured in two groups differ from each other?
+
+### Research hypothesis
+
+### Statistical hypothesis
+
+H0:
+
+H1:
+
+## Data preparation and exploration
+
+### Starting session
+
+```{r}
+set.seed(6127)
+data <- data.frame(
+  gender = rep(c("Man", "Woman"), each = 60),
+  mood   = c(sample(c("Happy", "Sad"), 60, replace = TRUE, prob = c(0.45, 0.55)),
+             sample(c("Happy", "Sad"), 60, replace = TRUE, prob = c(0.65, 0.35)))
+)
+```
+
+## Parametric test
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+#### Chaque effectif > 5
+
+```{r}
+table(data$gender, data$mood) > 5
+```
+
+### Test
+
+```{r}
+prop.test(table(data$gender, data$mood), correct=FALSE) # ok jamovi in contingency tables
+```
+
+### Effect size
+
+## Non-parametric test
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+### Test
+
+```{r}
+fisher.test(table(data$gender, data$mood)) #ok jamovi
+```
+
+### Effect size
+
+## Results and recommendations

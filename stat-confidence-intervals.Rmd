@@ -1,0 +1,66 @@
+---
+title: "Confidence Intervals"
+output: html_notebook
+---
+
+A notebook made by Paul Amat, [amat-design.com](amat-design.com)
+
+## Context and objectives
+
+> What is the confidence interval for... ?
+
+## Data preparation and exploration
+
+### Starting session
+
+```{r}
+set.seed(4218)
+data <- data.frame(
+  score  = rnorm(50, mean = 70, sd = 10),
+  gender = sample(c("Man", "Woman"), 50, replace = TRUE)
+)
+```
+
+## Confidence Intervals of Means
+
+### Assuming Normality
+
+```{r}
+t.test(data$score)$conf.int
+```
+
+### Not assuming Normality
+
+```{r}
+wilcox.test(data$score, conf.int=TRUE)$conf.int
+```
+
+## Confidence Intervals of Proportion
+
+```{r}
+binom.test(length(data$gender[data$gender == "Man"]), length(data$gender))$conf.int
+```
+
+## Confidence Intervals of any computed value
+
+### Boostraping
+
+```{r}
+boot <- numeric(1000) 
+for(i in 1:1000) {
+  boot[i]=mean(sample(data$score,10,replace=T)) 
+}
+```
+
+### Histogram
+
+```{r}
+hist(boot)
+```
+
+### Displaying CI
+
+```{r}
+boot.sorted=sort(boot)
+c(boot.sorted[25], boot.sorted[975])
+```

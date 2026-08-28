@@ -1,0 +1,87 @@
+---
+title: "Chi-Square Test for Checkout Completion"
+output: html_document
+---
+
+Does checkout completion depend on the device someone is using? We compare three device types (Desktop, iOS, Android) against task status (Pass / Fail) with a test of independence.
+
+## Make the data
+
+We sample each user's task outcome, giving Desktop the best odds of a
+pass, Android the worst, and iOS in between.
+
+```{r data}
+set.seed(7361)
+n <- 90
+
+devices <- c("Desktop", "iOS", "Android")
+status  <- c("Pass", "Fail")
+
+desktop_out <- sample(status, n, replace = TRUE, prob = c(0.85, 0.15))
+ios_out     <- sample(status, n, replace = TRUE, prob = c(0.70, 0.30))
+android_out <- sample(status, n, replace = TRUE, prob = c(0.60, 0.40))
+
+data <- data.frame(
+  device = factor(rep(devices, each = n), levels = devices),
+  status = factor(c(desktop_out, ios_out, android_out), levels = status)
+)
+head(data)
+```
+
+## Build the table
+
+`table()` counts how often each combination appears. With three devices
+and two outcomes, this is a 3x2 table.
+
+```{r table}
+tbl <- table(data$device, data$status)
+tbl
+```
+
+## Run the test
+
+`chisq.test()` compares what we saw with what we would expect if device
+did not matter.
+
+```{r test}
+test <- chisq.test(tbl)
+test
+test$p.value
+```
+
+## Check the assumptions
+
+The test needs every expected count to be at least 5.
+
+```{r expected}
+test$expected
+```
+
+## Visualize the counts with geom_count
+
+```{r plot-counts}
+library(ggplot2)
+
+ggplot(data, aes(device, status)) +
+  geom_count() +
+  theme_minimal() +
+  labs(x = "Device", y = "Task status", size = "Count",
+       title = "Observed task outcomes by device")
+```
+
+## Visualize the residuals with geom_count
+
+Residuals show which cells drove the test result: values far from
+zero contributed the most to the chi-square statistic.
+
+```{r plot-residuals}
+resid_df <- as.data.frame(as.table(test$residuals))
+names(resid_df) <- c("device", "status", "residual")
+
+ggplot(resid_df, aes(device, status, color = residual)) +
+  geom_text(aes(label = round(residual, 2)), size = 4) +
+  scale_color_gradient2(low = "steelblue", mid = "gray70", high = "firebrick") +
+  theme_minimal() +
+  labs(x = "Device", y = "Task status", color = "Residual",
+       title = "Pearson residuals by device")
+```

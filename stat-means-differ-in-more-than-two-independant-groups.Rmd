@@ -1,0 +1,235 @@
+---
+title: "Means differ in more than two independant groups"
+output: html_notebook
+---
+
+A notebook made by Paul Amat, [amat-design.com](amat-design.com)
+
+## Context and objectives
+
+> Is there at least one of the means or medians that differs from the others?
+
+### Research hypothesis
+
+### Statistical hypothesis
+
+H0:
+
+H1:
+
+## Data preparation and exploration
+
+### Starting session
+
+```{r}
+set.seed(3054)
+data <- data.frame(
+  profil = rep(c("Athletic", "Dreamer", "Scientist"), each = 30),
+  score  = c(rnorm(30, mean = 70, sd = 8),
+             rnorm(30, mean = 62, sd = 8),
+             rnorm(30, mean = 75, sd = 8))
+)
+```
+
+### Group descriptives
+
+```{r}
+levels(as.factor(data$profil))
+
+score.ath <- data[which(data$profil == "Athletic"),]$score
+score.dre <- data[which(data$profil == "Dreamer"),]$score
+score.sci <- data[which(data$profil == "Scientist"),]$score
+
+print("Athletic")
+summary(score.ath)
+
+print("Dreamer")
+summary(score.dre)
+
+print("Scientist")
+summary(score.sci)
+```
+
+## Parametric test
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+#### Normally distributed residuals
+
+##### Residuals
+
+```{r}
+res <- residuals(lm(score ~ profil, data),type="response")
+```
+
+##### Plots
+
+```{r}
+par(mfrow=c(1,2))
+hist(res, freq=FALSE)
+curve(dnorm(x, mean=mean(res), sd=sd(res)), add=TRUE, col = "red")
+qqnorm(res)
+qqline(res, col = "red")
+```
+
+##### Kolmogorov-Smirnov
+
+```{r}
+ks.test(res, "pnorm", mean(res), sd(res)) # ok jamovi
+rm(res)
+```
+
+#### Equal variances
+
+##### Levene
+
+```{r}
+car::leveneTest(score ~ as.factor(profil), data)
+```
+
+##### Bartlett
+
+```{r}
+bartlett.test(score ~ profil, data) # ok jamovi
+```
+
+##### Plots
+
+```{r}
+boxplot(score ~ profil, data)
+```
+
+#### No outliers
+
+```{r}
+outliers <- function(x) {
+   qinf <- quantile(x, 0.25) - (IQR(x)*1.5)
+   qsup <- quantile(x, 0.75) + (IQR(x)*1.5)
+   x[x < qinf | x > qsup]
+}
+
+outliers(score.ath)
+outliers(score.dre)
+outliers(score.sci)
+```
+
+### Test
+
+```{r}
+model <- aov(score ~ profil, data)
+summary(model) # ok jamovi
+```
+
+### Effect size
+
+#### Eta-squared
+
+```{r}
+if(!require(lsr)) install.packages("lsr")
+library(lsr)
+etaSquared(model) # ok jamovi
+```
+
+The effect size for a one factor analysis of variance η2 (eta-squared) is the proportion of the variability of the outcome variable that can be explained by the predictor. If η2 = 0, there is no relationship between the two. If η2 = 1, the relationship is perfect.
+
+The effect size for a multiple factors analysis η2p (partial eta-square, partial η2, or pη2) is the proportion of the variability of the outcome variable that can be explained by the predictor ignoring other effects in the model. If η2p = 0, there is no relationship between the two. If η2p = 1, the relationship is perfect. It is not possible to compare the partial values of η2p from one term to another.
+
+#### Omega
+
+```{r}
+
+```
+
+The square omega ω2 (omega-squared), less biased than η2, translates a weak effect if = 0.01, moderate if = 0.06, important if = 0.14.
+
+### Tests post hoc
+
+```{r}
+pairwise.t.test(data$score, data$profil, p.adj = "bonferroni") # ok jamovi
+```
+
+For each post hoc t-test, the standard error rate I increases. For the total error rate after the tests to remain α = 0.05, the p-values must be adjusted.
+
+If the condition of normality is respected, the adjusted p-value of HSD Tukey is to be read to see between which groups the difference is significant. The Bonferroni correction is to be used if the normality condition is not respected. This correction takes the initial threshold and divides it by the number of comparisons. The Holm correction is a more elaborate version of the Bonferroni correction.
+
+#### Effect size for test post hoc
+
+```{r}
+score.ath <- which(data$profil == "Athletic")
+score.dre <- which(data$profil == "Dreamer")
+score.sci <- which(data$profil == "Scientist")
+
+if(!require(effsize)) install.packages("effsize")
+library(effsize)
+(cohentest <- cohen.d(data$score[score.ath], data$score[score.dre]))
+(cohentest <- cohen.d(data$score[score.ath], data$score[score.sci]))
+(cohentest <- cohen.d(data$score[score.dre], data$score[score.sci])) # ok jamovi
+```
+
+## Non-parametric test: equal variances
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+### Test
+
+```{r}
+fisher.test(data$score, data$profil)
+```
+
+### Post hoc test
+
+```{r}
+# Tukey
+```
+
+## Non-parametric test: unequal variances
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+### Test
+
+```{r}
+# welch
+```
+
+### Post hoc test
+
+```{r}
+# Games-Howell
+```
+
+## Non-parametric test
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+### Test
+
+```{r}
+kruskal.test(score ~ profil, data) # ok jamovi
+```
+
+### Post hoc tests
+
+```{r}
+if(!require(PMCMRplus)) install.packages("PMCMRplus")
+library("PMCMRplus")
+dscfAllPairsTest(score ~ as.factor(profil), data = data) # ok jamovi
+```
+
+## Results and recommendations

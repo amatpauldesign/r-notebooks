@@ -1,0 +1,223 @@
+---
+title: "Means differ in two independant groups"
+output:
+  html_document:
+    df_print: paged
+---
+
+A notebook made by Paul Amat, [amat-design.com](amat-design.com)
+
+## Context and objectives
+
+> Do these two groups differ?
+
+### Research hypothesis
+
+Means do not differ between groups/conditions.
+
+### Statistical hypothesis
+
+H0: mu1 = mu2
+
+H1: mu1 ≠ mu2
+
+## Data preparation and exploration
+
+### Starting session
+
+```{r}
+set.seed(5286)
+data <- data.frame(
+  gender = rep(c("Man", "Woman"), each = 40),
+  score  = c(rnorm(40, mean = 68, sd = 9),
+             rnorm(40, mean = 74, sd = 9))
+)
+```
+
+### Group descriptives
+
+```{r}
+group1 <- data$score[data$gender == "Man"]
+group2 <- data$score[data$gender == "Woman"]
+
+print("Man")
+summary(group1)
+
+print("Woman")
+summary(group2)
+```
+
+### Mean difference
+
+```{r}
+mean(group1)-mean(group2) # ok jamovi
+```
+
+### Plot
+
+```{r}
+boxplot(score ~ gender, data)
+```
+
+## Parametric test
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+#### Normally distributed residuals
+
+##### Residuals
+
+```{r}
+res <- residuals(lm(score ~ gender, data),type="response")
+```
+
+##### Plots
+
+```{r}
+par(mfrow=c(1,2))
+hist(res, freq=FALSE)
+curve(dnorm(x, mean=mean(res), sd=sd(res)), add=TRUE, col="red")
+qqnorm(res)
+qqline(res, col="red")
+```
+
+##### Shapiro-Wilk
+
+```{r}
+shapiro.test(res) # ok jamovi
+```
+
+#### Equal variances
+
+##### F-test
+
+```{r}
+var.test(score ~ gender, data, conf.level=.95)
+```
+
+##### Bartlett
+
+```{r}
+bartlett.test(score ~ gender, data)
+```
+
+##### Levene
+
+```{r}
+library(car)
+leveneTest(score ~ as.factor(gender), data, center = mean) # ok jamovi
+```
+
+In Levene test: if p-value is greater than 0.05, we do not reject H0 and we conclude that the variances of our two groups are homogeneous.
+
+#### No outliers
+
+```{r}
+outliers <- function(x) {
+   qinf <- quantile(x, 0.25) - (IQR(x)*1.5)
+   qsup <- quantile(x, 0.75) + (IQR(x)*1.5)
+   x[x < qinf | x > qsup]
+}
+
+outliers(group1)
+outliers(group2)
+```
+
+### Test
+
+```{r}
+test <- t.test(score ~ gender, data, var.equal = T) # ok in jamovi
+test
+```
+
+### Confidence intervals
+
+```{r}
+test$conf.int
+```
+
+This confidence interval encompasses the difference between the means of the groups. If the test is unilateral, one of the limits of the CI will be infinity.
+
+### Effect size
+
+```{r}
+if(!require(effsize)) install.packages("effsize")
+library(effsize)
+(cohentest <- cohen.d(score ~ gender, data)) #ok jamovi
+```
+
+Cohen's d est faible si d = .20, modéré si d = .50, important si d = .80 . Le signe + ou - est donné par l'ordre des variables.
+
+### Power analysis
+
+#### Finding power
+
+```{r}
+if(!require(pwr)) install.packages("pwr")
+library(pwr)
+
+pwr.t.test(n = length(data$score)/2, 
+           d = cohentest$estimate, 
+           power = NULL, 
+           type = "two.sample") # ok jamovi
+```
+
+#### Finding N
+
+```{r}
+pwr.t.test(n = NULL, 
+           d = cohentest$estimate, 
+           power = 0.9, 
+           type = "two.sample") # ok jamovi
+```
+
+## Non-parametric test : non-equal variances
+
+### Test
+
+```{r}
+t.test(score ~ gender, data, var.equal = F) # ok in jamovi
+```
+
+### Effect size
+
+```{r}
+if(!require(effsize)) install.packages("effsize")
+library(effsize)
+(cohentest <- cohen.d(score ~ gender, data, var.equal = F))
+```
+
+## Non-parametric test : non-normally distributed residuals
+
+### Conditions
+
+#### Independent observations
+
+The independence of observations is guaranteed by the recruitment process.
+
+#### N in each group \> 20
+
+```{r}
+length(group1) > 20 & length(group2) > 20
+```
+
+### Test
+
+```{r}
+wilcox.test(score ~ gender, data, correct = F) # ok in jamovi
+```
+
+### Effect size
+
+```{r}
+if(!require(effectsize)) install.packages("effectsize")
+library(effectsize)
+
+rank_biserial(data$score, data$gender)
+```
+
+## Results and recommendations
