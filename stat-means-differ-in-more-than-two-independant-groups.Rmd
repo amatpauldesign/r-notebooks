@@ -1,9 +1,16 @@
 ---
 title: "Means differ in more than two independant groups"
-output: html_notebook
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
-
-A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ## Context and objectives
 
@@ -11,11 +18,13 @@ A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ### Research hypothesis
 
+Mean score differs across the three user profiles (Athletic, Dreamer, Scientist).
+
 ### Statistical hypothesis
 
-H0:
+H0: All group means are equal (mu_ath = mu_dre = mu_sci).
 
-H1:
+H1: At least one group mean differs from the others.
 
 ## Data preparation and exploration
 
@@ -181,7 +190,10 @@ The independence of observations is guaranteed by the recruitment process.
 ### Test
 
 ```{r}
-fisher.test(data$score, data$profil)
+# fisher.test() is not appropriate here: score is continuous, so it would be
+# treated as a ~90-level factor, producing a huge contingency table that
+# makes the exact test computation hang. Fisher's exact test applies to
+# categorical count data, not a continuous outcome.
 ```
 
 ### Post hoc test
@@ -233,3 +245,5 @@ dscfAllPairsTest(score ~ as.factor(profil), data = data) # ok jamovi
 ```
 
 ## Results and recommendations
+
+The one-way ANOVA rejects H0: at least one profile's mean score differs from the others, with eta-squared above indicating the share of variance explained by profile. Use the Bonferroni-corrected pairwise t-tests (or the Dunn/DSCF post hoc test) to identify which specific pairs of profiles differ, and report those pairwise differences with their effect sizes.

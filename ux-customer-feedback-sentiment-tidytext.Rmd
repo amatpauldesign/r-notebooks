@@ -1,6 +1,15 @@
 ---
 title: "Customer Feedback Sentiment Analysis with tidytext"
-output: html_document
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
 
 Sentiment lexicons give each word a score that shows how positive or negative

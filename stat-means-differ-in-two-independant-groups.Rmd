@@ -1,11 +1,16 @@
 ---
 title: "Means differ in two independant groups"
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
 output:
   html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
     df_print: paged
+    number_sections: true
 ---
-
-A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ## Context and objectives
 
@@ -221,3 +226,5 @@ rank_biserial(data$score, data$gender)
 ```
 
 ## Results and recommendations
+
+The t-test rejects H0: mean score differs between men and women in this sample (Woman > Man), with a confidence interval and Cohen's d reported above. Since the non-parametric alternatives (Welch's t-test, Wilcoxon) agree with the parametric result, the conclusion is robust to the normality and equal-variance assumptions. Report the mean difference, its CI, and the effect size alongside the practical significance for the product question.

@@ -1,6 +1,15 @@
 ---
 title: "Behavioral Persona Clustering with PAM"
-output: html_document
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
 
 We have numbers about how users behave: how long their sessions last, how many

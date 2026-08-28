@@ -1,11 +1,16 @@
 ---
 title: "Association between two independent nominal variables"
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
 output:
   html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
     df_print: paged
+    number_sections: true
 ---
-
-A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ## Context and objectives
 
@@ -13,11 +18,13 @@ A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ### Research hypothesis
 
+Mood (Happy vs. Sad) is associated with gender.
+
 ### Statistical hypothesis
 
-H0:
+H0: Mood and gender are independent (no association).
 
-H1:
+H1: Mood and gender are associated.
 
 ## Data preparation and exploration
 
@@ -191,3 +198,5 @@ fisher.test(data$mood, data$gender) #ok jamovi
 ```
 
 ## Results and recommendations
+
+The chi-square test (with continuity correction) rejects independence between mood and gender in this sample, and the standardized residuals and Cramer's V above indicate the strength and direction of the association. Report which mood/gender combination is over- or under-represented, and confirm the finding holds under Fisher's exact test before drawing conclusions.

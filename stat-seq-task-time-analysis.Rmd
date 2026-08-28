@@ -1,6 +1,15 @@
 ---
 title: "SEQ & Task Time Joint Analysis"
-output: html_document
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
 
 For each task we know how hard users found it (SEQ, 1 = very hard, 7 = very

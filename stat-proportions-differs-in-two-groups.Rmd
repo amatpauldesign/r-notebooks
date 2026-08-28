@@ -1,9 +1,16 @@
 ---
 title: "Proportions differs in two groups"
-output: html_notebook
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
-
-A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ## Context and objectives
 
@@ -11,11 +18,13 @@ A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ### Research hypothesis
 
+The proportion of users in a given mood (Happy vs. Sad) differs between men and women.
+
 ### Statistical hypothesis
 
-H0:
+H0: The proportion of "Happy" is the same in both groups (p_man = p_woman).
 
-H1:
+H1: The proportion of "Happy" differs between groups (p_man ≠ p_woman).
 
 ## Data preparation and exploration
 
@@ -52,6 +61,8 @@ prop.test(table(data$gender, data$mood), correct=FALSE) # ok jamovi in contingen
 
 ### Effect size
 
+For a 2x2 table of proportions, effect size is typically reported as the risk difference (the gap between the two sample proportions, given by `sample estimates` above) or Cohen's h.
+
 ## Non-parametric test
 
 ### Conditions
@@ -68,4 +79,8 @@ fisher.test(table(data$gender, data$mood)) #ok jamovi
 
 ### Effect size
 
+The odds ratio returned by `fisher.test()` (in its output above) serves as the effect size for this test.
+
 ## Results and recommendations
+
+Both the parametric proportions test and Fisher's exact test reject H0: the "Happy" mood proportion differs meaningfully between men and women in this sample. Report the proportion for each group, the confidence interval on the difference, and the odds ratio, then discuss whether the gap is large enough to matter for the product decision at hand.

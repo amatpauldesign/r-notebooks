@@ -1,6 +1,15 @@
 ---
 title: "Chi-Square Test for Checkout Completion"
-output: html_document
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
 
 Does checkout completion depend on the device someone is using? We compare three device types (Desktop, iOS, Android) against task status (Pass / Fail) with a test of independence.

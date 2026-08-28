@@ -1,7 +1,18 @@
 ---
 title: "UX Metrics Visualization"
-output: html_document
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
+
+A set of standalone visualizations for common System Usability Scale (SUS) reporting needs: the overall score distribution, item-level breakdowns, subscale comparisons, demographic splits, and correlations. Each section simulates its own example data so the plots can be adapted independently.
 
 ```{r}
 library(ggplot2)

@@ -1,9 +1,16 @@
 ---
 title: "Confidence Intervals"
-output: html_notebook
+author: "Paul AMAT (https://amatpauldesign.github.io/)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      smooth_scroll: true
+    code_download: true
+    df_print: paged
+    number_sections: true
 ---
-
-A notebook made by Paul Amat, [amat-design.com](amat-design.com)
 
 ## Context and objectives
 
